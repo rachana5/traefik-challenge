@@ -255,7 +255,7 @@ You can check the status of the pods using the command: `kubectl get pods`. You 
 
 ### Errors with Kubernetes pods
 
-1. In the Kubernetes deployment method, if you are using Windows and Docker Desktop, you may get errors with Traefik and the Wordsmith database deployment. To fix this, manually pull the failing images using the following commands:
+In the Kubernetes deployment method, if you are using Windows and Docker Desktop, you may get errors with Traefik and the Wordsmith database deployment. To fix this, manually pull the failing images using the following commands:
 
 ```bash
 docker pull postgres:10.0-alpine
