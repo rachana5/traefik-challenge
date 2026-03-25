@@ -4,13 +4,13 @@ This repository contains the files for the Traefik challenge scenario.
 
 ### List of files present in the repository
 
-- documentation.md: This file contains the complete guide for exposing a sample project on HTTPs, with basic auth and rate applied. I've chosen a Docker demo project (Wordsmith) to demonstrate the scenario. This assumes that the user wants to expose the Wordsmith project with self-signed certificates. The steps for Kubernetes are also included. Configuration for production use with Let's Encrypt is not included because I had no means of testing the steps. I had some issues with the Traefik version to be used (`v3.0` vs `v3`) and with the Kubernetes deployment, so I added a "Troubleshooting" section with a couple of error scenarios and solutions. 
+- [documentation.md](documentation.md): This file contains the complete guide for exposing a sample project on HTTPs, with basic auth and rate applied. I've chosen a Docker demo project (Wordsmith) to demonstrate the scenario. This assumes that the user wants to expose the Wordsmith project with self-signed certificates. The steps for Kubernetes are also included. Configuration for production use with Let's Encrypt is not included because I had no means of testing the steps. I had some issues with the Traefik version to be used (`v3.0` vs `v3`) and with the Kubernetes deployment, so I added a "Troubleshooting" section with a couple of error scenarios and solutions. 
 
-- assets folder: This contains screenshots of the Traefik dashboard from the Docker and Kubernetes deployments.
+- [assets](assets): This folder contains screenshots of the Traefik dashboard from the Docker and Kubernetes deployments.
 
-- docker-compose.yml and traefik-dynamic.yml: These files contain the configuration for Docker deployment that I used.
+- [docker-compose.yml](docker-compose.yml) and [traefik-dynamic.yml](traefik-dynamic.yml): These files contain the configuration for Docker deployment that I used.
 
-- traefik-infrastructure.ym`: This file contains the configuration for Kubernetes.
+- [traefik-infrastructure.yml](traefik-infrastructure.yml): This file contains the configuration for Kubernetes.
 
 ### Tools used
 
