@@ -1,0 +1,73 @@
+version: '3.9'
+# we'll keep the version for now to work in Compose and Swarm
+
+services:
+  traefik:
+    image: traefik:v3
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro"
+      - "./certs/local.crt:/certs/local.crt:ro"
+      - "./certs/local.key:/certs/local.key:ro"
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--api.dashboard=true"
+      - "--log.level=DEBUG"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--providers.file.filename=/etc/traefik/dynamic.yml"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.service=api@internal"
+    networks:
+      - proxy
+
+  db:
+    image: postgres:10.0-alpine
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+
+  api:
+    build: api
+    image: dockersamples/wordsmith-api
+    deploy:
+      replicas: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`wordsmith-api.localhost`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.services.api.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.api-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.api-ratelimit.ratelimit.burst=50"
+      - "traefik.http.routers.api.middlewares=api-ratelimit"
+    networks:
+      - proxy
+
+  web:
+    build: web
+    image: dockersamples/wordsmith-web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`wordsmith-web.localhost`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls=true"
+      - "traefik.http.services.web.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.web-auth.basicauth.users=admin:$$apr1$$3N8ok7Bw$$vYfYTxfhHqfG5Xb014GtG/"
+      - "traefik.http.routers.web.middlewares=web-auth"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    name: proxy

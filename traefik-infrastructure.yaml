@@ -1,0 +1,87 @@
+# 0. Auth Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authsecret
+  namespace: default
+type: Opaque
+stringData:
+  users: |
+    admin:$apr1$vonb2qec$Q1hTEPsgJxjoJzaLscx251
+---
+# 1. Set the default fallback TLS certificate
+apiVersion: traefik.io/v1alpha1
+kind: TLSStore
+metadata:
+  name: default
+  namespace: default
+spec:
+  defaultCertificate:
+    secretName: local-cert
+---
+# 2. Define the Middlewares (Auth & Rate Limit)
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: web-auth
+spec:
+  basicAuth:
+    secret: authsecret
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: api-ratelimit
+spec:
+  rateLimit:
+    average: 100
+    burst: 50
+---
+# 3. Route your Frontend (Web)
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wordsmith-web-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`wordsmith-web.localhost`)
+      kind: Rule
+      services:
+        - name: web        # Name of the service in the wordsmith repo
+          port: 8080       # Port defined in the wordsmith repo
+      middlewares:
+        - name: web-auth   # Applying Basic Auth!
+---
+# 4. Route your Backend (API)
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wordsmith-api-ingress
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`wordsmith-api.localhost`)
+      kind: Rule
+      services:
+        - name: api      # The wordsmith repo names the API service "words"
+          port: 8080      # The backend service port in the wordsmith repo
+      middlewares:
+        - name: api-ratelimit # Applying Rate Limiting!
+---
+# 5. Route the Traefik Dashboard
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`traefik.localhost`)
+      kind: Rule
+      services:
+        - name: api@internal
+          kind: TraefikService
