@@ -124,6 +124,10 @@ You should be able to access the web, API, and Traefik dashboard services using 
 
 When you are accessing the web service, you will be prompted to enter a username and password (`admin`/`admin`). To access the API service, enter the domain name followed by `/nouns`, `/verbs`, and `/adjectives`. A JSON object is returned that contains a randomly generated word based on the application's database.
 
+The following screenshot shows how an example of the Traefik dashboard:
+
+![Traefik dashboard](/assets/images/docker-traefik-dashboard")
+
 ---
 
 ## Kubernetes setup
