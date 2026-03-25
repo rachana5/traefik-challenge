@@ -126,7 +126,7 @@ When you are accessing the web service, you will be prompted to enter a username
 
 The following screenshot shows how an example of the Traefik dashboard:
 
-![Traefik dashboard](/assets/images/docker-traefik-dashboard")
+![Traefik dashboard](assets/docker-traefik-dashboard.png)
 
 ---
 
