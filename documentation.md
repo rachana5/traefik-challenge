@@ -1,13 +1,13 @@
 # Expose Wordsmith using Traefik
 
-This guide shows you how to expose the Docker sample application [Wordsmith](https://github.com/dockersamples/wordsmith) using Traefik to an HTTPS connection. The demo project consists of a web and an API service. In this guide, we will add the following configurations:
+This guide shows you how to expose the Docker sample application [Wordsmith](https://github.com/dockersamples/wordsmith) using [Traefik](https://doc.traefik.io/traefik/) to an HTTPS connection. The demo project consists of a web and an API service. In this guide, we will add the following configurations:
 - The web service is protected with basic authentication (username and password).
 - The API service is protected with rate limiting.
 
 ## Prerequisites
 
 - Install Docker and Docker Compose.
-- Deploy Traefik. Refer to the [Docker setup guide](https://doc.traefik.io/traefik/setup/docker/) for instructions.
+- Deploy Traefik.
 
 ## 1. Clone the Wordsmith repository
 
@@ -19,7 +19,7 @@ git clone https://github.com/dockersamples/wordsmith.git
 
 The `wordsmith` folder is added to your working directory.
 
-## 2.Get self-signed certificates
+## 2. Get self-signed certificates
 
 This is ideal for local development and testing purposes. Create a folder called `certs` in your working directory which stores the SSL certificates. Use the following command to generate self-signed certificates:
 
@@ -120,9 +120,12 @@ Deploy the application using the following command:
 docker compose up -d
 ```
 
-You should be able to access the web, API, and Traefik dashboard services using the URLs that you defined in the `docker-compose.yml` file. Because we are using self-signed certificates, you will need to accept the security warnings in your browser to access the services.
+You should be able to access the services using the URLs that we defined in the `docker-compose.yml` file:
+- The web service is accessible from the `https://wordsmith-web.localhost` URL. You are prompted to enter the username and password (`admin`/`admin`).
+- The API service is accessible from the `https://wordsmith-api.localhost` URL. Enter the domain name followed by `/nouns`, `/verbs`, and `/adjectives`. A JSON object is returned that contains a randomly generated word based on the application's database.
+- The Traefik dashboard is accessible from the `https://traefik.localhost` URL.
 
-When you are accessing the web service, you will be prompted to enter a username and password (`admin`/`admin`). To access the API service, enter the domain name followed by `/nouns`, `/verbs`, and `/adjectives`. A JSON object is returned that contains a randomly generated word based on the application's database.
+> Because we are using self-signed certificates, you will need to accept the security warnings in your browser to access the services.
 
 The following screenshot shows how an example of the Traefik dashboard:
 
@@ -160,7 +163,7 @@ metadata:
   name: authsecret
   namespace: default
 type: Opaque
-stringData:
+stringData: # Adding the username and password
   users: |
     admin:$apr1$vonb2qec$Q1hTEPsgJxjoJzaLscx251
 ---
@@ -201,7 +204,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`wordsmith-web.localhost`)
+    - match: Host(`wordsmith-web.localhost`) # This is the URL to access the web service.
       kind: Rule
       services:
         - name: web        
@@ -218,7 +221,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`wordsmith-api.localhost`)
+    - match: Host(`wordsmith-api.localhost`) # This is the URL to access the API service.
       kind: Rule
       services:
         - name: api      
@@ -235,7 +238,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`traefik.localhost`)
+    - match: Host(`traefik.localhost`) # This is the URL to access the Traefik dashboard.
       kind: Rule
       services:
         - name: api@internal
@@ -249,7 +252,7 @@ kubectl apply -k .
 kubectl apply -f traefik-infrastructure.yml
 ```
 
-You can check the status of the pods using the command: `kubectl get pods`. You should now be able to access the web, API, and Traefik dashboard services using the URLs that you defined in the `traefik-infrastructure.yml` file.
+You can check the status of the pods using the command: `kubectl get pods`. You should now be able to access the web, API, and Traefik dashboard services using the URLs defined in the `traefik-infrastructure.yml` file.
 
 ## Troubleshooting
 
@@ -277,3 +280,5 @@ There can be multiple reasons for the errors. Make sure that the self-signed cer
 
 - For Docker, check the logs using the command: `docker logs traefik`
 - For Kubernetes, check the logs using the command: `kubectl logs -n default -l app.kubernetes.io/name=traefik`
+
+If you are using Docker Desktop on Windows, you may also get this error if the Traefik image version in your `docker-compose.yml` is `v3.0`. Try using `image: traefik:v3` instead. 
