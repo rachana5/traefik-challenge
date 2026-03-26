@@ -14,12 +14,12 @@ This repository contains the files for the Traefik challenge scenario.
 
 ### Tools used
 
-- I'm using a Windows machine with Docker Desktop and Git Bash.
-- Google Antigravity was used to write the configuration files and for troubleshooting deployment and run-time errors.
+- Docker Desktop and Git Bash (Windows).
+- VS Code and Google Antigravity was used to write the configuration files and for troubleshooting deployment and run-time errors.
 
 ### Method
 
-1. Discovery phase: I went over the Traefik docs for Docker initially, since that was my primary target for completion. I completed the basic setup and went over the code snippets to better understand the structure for exposure, basic auth, and middlewares in general. Here, I also looked for a project for implementation and chose Wordsmith for its simplicity and web and API services that aligned with the goal of exposing two services.
+1. Discovery phase: I went over the Traefik docs for Docker initially, since that was the primary target. I completed the basic setup and went over the code snippets to better understand the structure for exposure, basic auth, and middlewares in general. Here, I also looked for a project for implementation and chose Wordsmith for its simplicity and web and API services that aligned with the goal of exposing two services.
 
 2. Testing phase: In this phase, I aimed to add basic auth and rate limit to the Wordsmith project. With some trial and error (some of it because of Windows), the deployment was successful. Then I went over the Traefik Kubernetes implementation as well and repeated the configuration and testing to successfully deploy the services.
 
